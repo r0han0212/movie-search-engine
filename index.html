@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie & TV Series Search</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            color: #fff;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-top: 50px;
+        }
+        .search-box-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #007BFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        .search-box {
+            padding: 12px 20px;
+            width: 350px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .search-box:focus {
+            border-color: #0056b3;
+        }
+        .search-box-btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .search-box-btn:hover {
+            background-color: #003f7f;
+        }
+        .movie-details {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        .movie-details img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .movie-details h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        .movie-details p {
+            color: #bbb;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+        .error {
+            color: #ff4d4d;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .search-box-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .search-box {
+                width: 280px;
+            }
+            .search-box-btn {
+                margin-top: 10px;
+            }
+            .movie-details {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Search Movies & TV Series</h1>
+    <div class="search-box-container">
+        <input type="text" id="movieTitle" class="search-box" placeholder="Enter movie or TV series title">
+        <button class="search-box-btn" onclick="searchMovie()">Search</button>
+    </div>
+    <div id="movieDetails" class="movie-details"></div>
+    <div id="error" class="error"></div>
+
+    <script>
+        async function searchMovie() {
+            const title = document.getElementById("movieTitle").value.trim();
+            const movieDetailsDiv = document.getElementById("movieDetails");
+            const errorDiv = document.getElementById("error");
+
+            // Clear previous results
+            movieDetailsDiv.innerHTML = "";
+            errorDiv.innerHTML = "";
+
+            if (!title) {
+                errorDiv.textContent = "Please enter a movie or TV series title.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/search_movie?title=${encodeURIComponent(title)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    movieDetailsDiv.innerHTML = `
+                        <h2>${data.Title} (${data.Year})</h2>
+                        <img src="${data.Poster}" alt="Poster of ${data.Title}">
+                        <p><strong>Genre:</strong> ${data.Genre}</p>
+                        <p><strong>Director:</strong> ${data.Director}</p>
+                        <p><strong>IMDb Rating:</strong> ${data.imdbRating}</p>
+                        <p><strong>Plot:</strong> ${data.Plot}</p>
+                    `;
+                } else {
+                    errorDiv.textContent = data.error;
+                }
+            } catch (error) {
+                errorDiv.textContent = "An error occurred. Please try again.";
+                console.error("Error:", error);
+            }
+        }
+    </script>
+</body>
+</html>
